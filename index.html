@@ -77,73 +77,55 @@ var Wicker = function () {
   return this;
 };
 
-// Test is out!
-// var W = new Wicker();
-//
-// W.new({
-//   width: 300,
-//   height: 300
-// }, document.body)
-// .createRect({
-//   position: { x: 25, y: 25, w: 50, h: 50 },
-//   background: '#ff00ff'
-// });
 
+
+// Fun Example
 (function() {
 
 // surreal logic, #seeWhatIDidThere
 var W = new Wicker();
 var main = {
-  w: window.innerWidth * 0.5,
-  h: window.innerHeight * 0.2
+  w: window.innerWidth * 0.5, //
+  h: window.innerHeight * 0.2 //
 };
 
 var container = W.new({ width: main.w, height: main.h });
-
-// container.createRect({
-//   position: { x: 25, y: 25, w: 50, h: 50 },
-//   background: 'yellow'
-// });
-
-// for (var row = 0; row < 8; row ++) {
-//   for (var column = 0; column < 8; column ++) {
-//     // coordinates of the top-left corner
-//     var x = column * 50;
-//     var y = row * 50;
-//
-//     container.createRect({
-//       position: { x: x, y: y, w: 50, h: 50 },
-//       background: 'yellow'
-//     });
-//   }
-// }
-
 var size = 5;
+var offset = 10;
 
 function rand(bottom) {
-  bottom = bottom || 10;
-  return (Math.floor(Math.random() * bottom) + 1) / 10;
+  bottom = bottom || 1;
+  return (Math.floor(Math.random() * 10) + bottom) / 10;
 }
 
-function drawAll(percent) {
+function getColor(first, low) {
+  if (first) {
+    return "rgba(200, 200, 200, " + rand(low) + ")";
+  } else {
+    return "rgba(80, 80, 80, " + rand(low) + ")";
+  }
+}
+
+function drawAll(percent, bottom) {
   var totalRows = main.h / size;
   var totalCols = (main.w / size) * percent;
+  var start = (percent > offset) ? offset : 0;
 
-  for (var row = 0; row < totalRows; row++){
-    for (var column = 0; column < totalCols; column++){
-      // coordinates of the top-left corner
+  for (var row = start; row < totalRows; row++){
+    for (var column = start; column < totalCols; column++){
       var x = column * size;
       var y = row * size;
       var fill;
+      var isFirst = (bottom) ? false : true;
 
-      if (row % 2 == 0) {
-        if (column % 8 == 0) {
-          fill = "rgba(255, 0, 255, " + rand() + ")";
+      if (row % rand(2) == 0) {
+        if (column % rand(4) == 0) {
+          fill = (isFirst) ? getColor(isFirst, bottom) : "rgba(255, 0, 255, " + rand(bottom) + ")";
         } else {
-        fill = "rgba(80, 88, 89, " + rand() + ")";
+        fill = getColor(isFirst, bottom);
         }
       } else {
-        fill = "rgba(80, 88, 89, " + rand() + ")";
+        fill = getColor(isFirst, bottom);
       }
 
       container.createRect({
@@ -154,20 +136,29 @@ function drawAll(percent) {
   }
 }
 
-// drawAll(37 / 100);
-
 var inc = 0;
+var inc2 = 0;
 var timey = setInterval(function() {
   inc++;
-  if (inc > 100) {
-    window.clearTimeout(timey);
-    return;
+  if (inc > 99.99) {
+    if (inc2 === 0) {
+      inc2 = 1;
+      inc = 1;
+    } else {
+      window.clearTimeout(timey);
+      return;
+    }
   }
 
   requestAnimFrame(function() {
-    drawAll(inc / 100);
+    if (inc2 === 1) {
+      drawAll(inc / 100, 7);
+    } else {
+      drawAll(inc / 100);
+    }
   });
-}, 10);
+}, 30);
+
 
 })();
 </script>
