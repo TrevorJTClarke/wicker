@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Wicker - Tiny Canvas Engine</title>
+<style> body { margin: 0px; padding: 80px; } canvas { margin: auto; display: block;} </style>
+</head>
+<body>
+<script>
+window.requestAnimFrame = (function(callback) {
+  return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+  function(callback) {
+    window.setTimeout(callback, 1000 / 60);
+  };
+})();
+
+/**
+ * Wicker
+ *
+ * Useful for creating canvas instances
+ */
+var Wicker = function () {
+
+  // Only stores the current instance
+  this.instance = null;
+
+  /**
+   * builds a new canvas element, with specified options
+   * @param  {Object} options any items to add to the canvas
+   * @return {Object}         returns newly created canvas
+   */
+  this.new = function(options, parent) {
+    var cv = document.createElement('canvas');
+
+    // apply options quickly, #noRegretsNoChecks
+    if (options) {
+      for (var key in options) {
+        cv[key] = options[key];
+      }
+    }
+
+    // Store for later internal use
+    this.instance = cv;
+
+    if (parent && parent.appendChild) {
+      parent.appendChild(cv);
+    } else {
+      document.body.appendChild(cv);
+    }
+
+    if (!options) {
+      this.fitToParent();
+    }
+
+    return this;
+  };
+
+  this.createRect = function(options) {
+    var rect = this.instance.getContext('2d');
+
+    rect.beginPath();
+    rect.rect(options.position.x, options.position.y, options.position.w, options.position.h);
+    rect.fillStyle = options.background || '#FFF';
+    rect.fill();
+
+    return this;
+  };
+
+  this.fitToParent = function() {
+    // Make it visually fill the positioned parent
+    this.instance.style.width ='100%';
+    this.instance.style.height='100%';
+    // ...then set the internal size to match
+    this.instance.width  = this.instance.offsetWidth;
+    this.instance.height = this.instance.offsetHeight;
+  };
+
+  return this;
+};
+
+
+
+// Fun Example
+(function() {
+
+// surreal logic, #seeWhatIDidThere
+var W = new Wicker();
+var main = {
+  w: window.innerWidth * 0.5, //
+  h: window.innerHeight * 0.2 //
+};
+
+var container = W.new({ width: main.w, height: main.h });
+var size = 5;
+var offset = 10;
+
+function rand(bottom) {
+  bottom = bottom || 1;
+  return (Math.floor(Math.random() * 10) + bottom) / 10;
+}
+
+function getColor(first, low) {
+  if (first) {
+    return "rgba(200, 200, 200, " + rand(low) + ")";
+  } else {
+    return "rgba(80, 80, 80, " + rand(low) + ")";
+  }
+}
+
+function drawAll(percent, bottom) {
+  var totalRows = main.h / size;
+  var totalCols = (main.w / size) * percent;
+  var start = (percent > offset) ? offset : 0;
+
+  for (var row = start; row < totalRows; row++){
+    for (var column = start; column < totalCols; column++){
+      var x = column * size;
+      var y = row * size;
+      var fill;
+      var isFirst = (bottom) ? false : true;
+
+      if (row % rand(2) == 0) {
+        if (column % rand(4) == 0) {
+          fill = (isFirst) ? getColor(isFirst, bottom) : "rgba(255, 0, 255, " + rand(bottom) + ")";
+        } else {
+        fill = getColor(isFirst, bottom);
+        }
+      } else {
+        fill = getColor(isFirst, bottom);
+      }
+
+      container.createRect({
+        position: { x: x, y: y, w: size, h: size },
+        background: fill
+      });
+    }
+  }
+}
+
+var inc = 0;
+var inc2 = 0;
+var timey = setInterval(function() {
+  inc++;
+  if (inc > 99.99) {
+    if (inc2 === 0) {
+      inc2 = 1;
+      inc = 1;
+    } else {
+      window.clearTimeout(timey);
+      return;
+    }
+  }
+
+  requestAnimFrame(function() {
+    if (inc2 === 1) {
+      drawAll(inc / 100, 7);
+    } else {
+      drawAll(inc / 100);
+    }
+  });
+}, 30);
+
+
+})();
+</script>
+</body>
+</html>
