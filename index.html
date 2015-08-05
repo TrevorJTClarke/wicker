@@ -2,10 +2,16 @@
 <html>
 <head>
 <title>Wicker - Tiny Canvas Engine</title>
-<style> body { margin: 0px; padding: 0px; } </style>
+<style> body { margin: 0px; padding: 80px; } canvas { margin: auto; display: block;} </style>
 </head>
 <body>
 <script>
+window.requestAnimFrame = (function(callback) {
+  return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+  function(callback) {
+    window.setTimeout(callback, 1000 / 60);
+  };
+})();
 
 /**
  * Wicker
@@ -37,6 +43,12 @@ var Wicker = function () {
 
     if (parent && parent.appendChild) {
       parent.appendChild(cv);
+    } else {
+      document.body.appendChild(cv);
+    }
+
+    if (!options) {
+      this.fitToParent();
     }
 
     return this;
@@ -46,46 +58,118 @@ var Wicker = function () {
     var rect = this.instance.getContext('2d');
 
     rect.beginPath();
-    rect.rect(options.position.l, options.position.t, options.position.r, options.position.b);
+    rect.rect(options.position.x, options.position.y, options.position.w, options.position.h);
     rect.fillStyle = options.background || '#FFF';
     rect.fill();
 
     return this;
   };
 
+  this.fitToParent = function() {
+    // Make it visually fill the positioned parent
+    this.instance.style.width ='100%';
+    this.instance.style.height='100%';
+    // ...then set the internal size to match
+    this.instance.width  = this.instance.offsetWidth;
+    this.instance.height = this.instance.offsetHeight;
+  };
+
   return this;
 };
 
-
-
-// var canvas = document.getElementById('myCanvas');
-// var context = canvas.getContext('2d');
-//
-// context.beginPath();
-// context.rect(50, 50, 200, 100);
-// context.fillStyle = '#505859';
-// context.fill();
-// context.lineWidth = 13;
-// context.strokeStyle = '#ff00ff';
-// context.stroke();
-
 // Test is out!
+// var W = new Wicker();
+//
+// W.new({
+//   width: 300,
+//   height: 300
+// }, document.body)
+// .createRect({
+//   position: { x: 25, y: 25, w: 50, h: 50 },
+//   background: '#ff00ff'
+// });
+
+(function() {
+
+// surreal logic, #seeWhatIDidThere
 var W = new Wicker();
+var main = {
+  w: window.innerWidth * 0.5,
+  h: window.innerHeight * 0.2
+};
 
-W.new({
-  width: 300,
-  height: 300
-}, document.body)
-.createRect({
-  position: {
-    l: 0,
-    t: 0,
-    r: 150,
-    b: 300
-  },
-  background: '#ff00ff'
-});
+var container = W.new({ width: main.w, height: main.h });
 
+// container.createRect({
+//   position: { x: 25, y: 25, w: 50, h: 50 },
+//   background: 'yellow'
+// });
+
+// for (var row = 0; row < 8; row ++) {
+//   for (var column = 0; column < 8; column ++) {
+//     // coordinates of the top-left corner
+//     var x = column * 50;
+//     var y = row * 50;
+//
+//     container.createRect({
+//       position: { x: x, y: y, w: 50, h: 50 },
+//       background: 'yellow'
+//     });
+//   }
+// }
+
+var size = 5;
+
+function rand(bottom) {
+  bottom = bottom || 10;
+  return (Math.floor(Math.random() * bottom) + 1) / 10;
+}
+
+function drawAll(percent) {
+  var totalRows = main.h / size;
+  var totalCols = (main.w / size) * percent;
+
+  for (var row = 0; row < totalRows; row++){
+    for (var column = 0; column < totalCols; column++){
+      // coordinates of the top-left corner
+      var x = column * size;
+      var y = row * size;
+      var fill;
+
+      if (row % 2 == 0) {
+        if (column % 8 == 0) {
+          fill = "rgba(255, 0, 255, " + rand() + ")";
+        } else {
+        fill = "rgba(80, 88, 89, " + rand() + ")";
+        }
+      } else {
+        fill = "rgba(80, 88, 89, " + rand() + ")";
+      }
+
+      container.createRect({
+        position: { x: x, y: y, w: size, h: size },
+        background: fill
+      });
+    }
+  }
+}
+
+// drawAll(37 / 100);
+
+var inc = 0;
+var timey = setInterval(function() {
+  inc++;
+  if (inc > 100) {
+    window.clearTimeout(timey);
+    return;
+  }
+
+  requestAnimFrame(function() {
+    drawAll(inc / 100);
+  });
+}, 10);
+
+})();
 </script>
 </body>
 </html>
