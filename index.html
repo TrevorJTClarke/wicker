@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Wicker - Tiny Canvas Engine</title>
+<style> body { margin: 0px; padding: 0px; } </style>
+</head>
+<body>
+<script>
+
+/**
+ * Wicker
+ *
+ * Useful for creating canvas instances
+ */
+var Wicker = function () {
+
+  // Only stores the current instance
+  this.instance = null;
+
+  /**
+   * builds a new canvas element, with specified options
+   * @param  {Object} options any items to add to the canvas
+   * @return {Object}         returns newly created canvas
+   */
+  this.new = function(options, parent) {
+    var cv = document.createElement('canvas');
+
+    // apply options quickly, #noRegretsNoChecks
+    if (options) {
+      for (var key in options) {
+        cv[key] = options[key];
+      }
+    }
+
+    // Store for later internal use
+    this.instance = cv;
+
+    if (parent && parent.appendChild) {
+      parent.appendChild(cv);
+    }
+
+    return this;
+  };
+
+  this.createRect = function(options) {
+    var rect = this.instance.getContext('2d');
+
+    rect.beginPath();
+    rect.rect(options.position.l, options.position.t, options.position.r, options.position.b);
+    rect.fillStyle = options.background || '#FFF';
+    rect.fill();
+
+    return this;
+  };
+
+  return this;
+};
+
+
+
+// var canvas = document.getElementById('myCanvas');
+// var context = canvas.getContext('2d');
+//
+// context.beginPath();
+// context.rect(50, 50, 200, 100);
+// context.fillStyle = '#505859';
+// context.fill();
+// context.lineWidth = 13;
+// context.strokeStyle = '#ff00ff';
+// context.stroke();
+
+// Test is out!
+var W = new Wicker();
+
+W.new({
+  width: 300,
+  height: 300
+}, document.body)
+.createRect({
+  position: {
+    l: 0,
+    t: 0,
+    r: 150,
+    b: 300
+  },
+  background: '#ff00ff'
+});
+
+</script>
+</body>
+</html>
