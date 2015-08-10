@@ -119,6 +119,12 @@ var BrowserScan = function() {
     this.instance = W.new({ width: _this.main.w, height: _this.main.h });
   };
 
+  this.clear = function () {
+    var canvas = document.querySelector('canvas');
+    var context = canvas.getContext('2d');
+    context.clearRect(0, 0, this.main.w, this.main.h);
+  };
+
   this.drawSet = function(data, current, isFirst) {
     var _this = this;
     var total = data.length;
@@ -146,7 +152,12 @@ var BrowserScan = function() {
     var dataSet2 = _this.getRandomData(false);
     timeOffset = timeOffset || 1;
 
+    function clearCanvas() {
+      // _this.clear();
+    }
+
     function animate2() {
+      var __this = _this;
       var timey = setTimeout(function() {
         var total = (inc2 === 0) ? _this.totalRows : _this.totalCols;
         if (inc >= total) {
@@ -154,6 +165,7 @@ var BrowserScan = function() {
             inc2 = 1;
             inc = 0;
           } else {
+            clearCanvas();
             window.clearTimeout(timey);
             return;
           }
@@ -300,6 +312,15 @@ var BrowserScan = function() {
     context.fill();
   };
 
+  this.resetBrowser = function() {
+    var _this = this;
+
+    this.instance.createRect({
+      position: { x: 8, y: 25, w: _this.main.w - 19, h: _this.main.h - 31 },
+      background: "white"
+    });
+  };
+
   return this;
 };
 
@@ -315,6 +336,14 @@ B.drawBrowser();
 
 // Start animation
 B.animate();
+
+setTimeout(function() {
+  B.resetBrowser();
+  B.animate();
+},4000);
+setTimeout(function() {
+  B.clear();
+},8000);
 
 })();
 </script>
